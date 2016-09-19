@@ -1,0 +1,83 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Daum에디터 - 이미지 첨부</title>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="../Common/Plugins/daumeditor/js/popup.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" href="../Common/Plugins/daumeditor/css/popup.css" type="text/css" charset="utf-8" />
+    <script type="text/javascript">
+    // <![CDATA[
+    function initUploader() {
+        var _opener = PopupUtil.getOpener();
+        if (!_opener) {
+            alert('잘못된 경로로 접근하셨습니다.');
+            return;
+        }
+
+        var _attacher = getAttacher('image', _opener);
+        registerAction(_attacher);
+    }
+
+    function done() {
+        var images = new FormData($('form')[0]);
+        var files = $('#upload-image')[0].files;
+
+        $.ajax({
+            url: '/Bbs/SubmitAttach',
+            data: images,
+            processData: false,
+            contentType: false,
+            type: 'post',
+            success: function (data) {
+                var fileName = data.substring(data.length, data.lastIndexOf('\\') + 1);
+                var image = {
+                    'imageurl': './Uploads/' + fileName,
+                    'filename': fileName,
+                    'filesize': 640,
+                    'imagealign': 'C',
+                    'originalurl': './Uploads/' + fileName,
+                    'thumburl': './Uploads/' + fileName
+                };
+                execAttach(image);
+                closeWindow();
+            },
+            error: function (jqXHR, responseText, errorThorwn) {
+                alert(responseText);
+            }
+        });
+    }
+    // ]]>
+    </script>
+</head>
+<body onload="initUploader();">
+    <div class="wrapper">
+        <div class="header">
+            <h1>사진 첨부</h1>
+        </div>
+        <div class="body">
+            <form name="imageForm" action="/Bbs/SubmitAttach" method="post" enctype="multipart/form-data">
+                <dl class="alert">
+                    <dt>이미지 업로드</dt>
+                    <dd>
+                        <input type="file" name="images" id="upload-image" multiple />
+                    </dd>
+                </dl>
+            </form>
+        </div>
+        <div class="footer">
+            <p><a href="#" onclick="closeWindow();" title="닫기" class="close">닫기</a></p>
+            <ul>
+                <li class="submit"><a href="#" onclick="done();" title="등록" class="btnlink">등록</a> </li>
+                <li class="cancel"><a href="#" onclick="closeWindow();" title="취소" class="btnlink">취소</a></li>
+            </ul>
+            @*<input type="submit" value="submit" />*@
+        </div>
+        
+    </div>
+</body>
+</html>
